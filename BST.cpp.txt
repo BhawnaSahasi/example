@@ -1,0 +1,176 @@
+/******************************************************************************
+
+                              Online C++ Compiler.
+               Code, Compile, Run and Debug C++ program online.
+Write your code in this editor and press "Run" button to compile and execute it.
+
+*******************************************************************************/
+
+#include <iostream>
+#include <queue>
+#include <stack>
+#include <utility>
+#include <climits>
+#include <sstream> 
+#include <string>  
+using namespace std;
+
+template <typename T>
+class BinaryTreeNode{
+    public :
+        T data;
+        BinaryTreeNode* left;
+        BinaryTreeNode* right;
+        
+        BinaryTreeNode(T data){
+            this->data = data;
+            left = NULL;
+            right = NULL;
+        }
+        
+        ~BinaryTreeNode(){
+            delete left;
+            delete right;
+        }
+};
+
+class BST{
+    private : 
+        BinaryTreeNode<int>* root;
+        
+        bool hasData(int data, BinaryTreeNode<int>* root){
+            if(root == NULL)
+                return false;
+                
+            if(root->data == data)
+                return true;
+            else if (root->data > data)
+                return hasData(data, root->left);
+            else
+                return hasData(data, root->right);
+        }
+        
+        BinaryTreeNode<int>* insert(int data, BinaryTreeNode<int>* root){
+            if(root == NULL){
+                root = new BinaryTreeNode<int>(data);
+                return root;
+            }
+            
+            if(root->data > data){
+                root->left = insert(data, root->left);
+            }else{
+                root->right = insert(data, root->right);
+            }
+            
+            return root;
+        }
+        
+        BinaryTreeNode<int>* inorderSuccessor(BinaryTreeNode<int>* root){
+            if(root == NULL)
+                return NULL;
+                
+            if(root->left)
+                return inorderSuccessor(root->left);
+            else
+                return root;
+        }
+        
+        BinaryTreeNode<int>* deleteData(int data, BinaryTreeNode<int>* root){
+            if(root == NULL)
+                return NULL;
+                
+            if(root->data == data){
+                if((root->left == NULL) && (root->right == NULL)){
+                    delete root;
+                    return NULL;
+                }else if(root->left == NULL){
+                    BinaryTreeNode<int>* temp = root->right;
+                    root->right = NULL;
+                    delete root;
+                    return temp;
+                }else if(root->right == NULL){
+                    BinaryTreeNode<int>* temp = root->left;
+                    root->left = NULL;
+                    delete root;
+                    return temp;
+                }else{
+                    BinaryTreeNode<int>* iS = inorderSuccessor(root->right);
+                    root->data = iS->data;
+                    root->right = deleteData(iS->data, root->right);
+                    return root;
+                }
+            }else if(root->data > data){
+                root->left = deleteData(data, root->left);
+            }else{
+                root->right = deleteData(data, root->right);
+            }
+            
+            return root;
+        }
+    
+    public :
+        BST(){
+            root = NULL;
+        }
+        
+        ~BST(){
+            delete root;
+        }
+        
+        bool hasData(int data){
+            return hasData(data,root);
+        }
+        
+        void insert(int data){
+            root = insert(data, root);
+        }
+        
+        void deleteData(int data){
+            root = deleteData(data, root);
+        }
+        
+        void printLevelWise(){
+            if(this->root == NULL)
+                return;
+
+            queue<BinaryTreeNode<int>*> q;
+            q.push(this->root);
+            q.push(NULL);
+            
+            while(1){
+                BinaryTreeNode<int>* temp = q.front();
+                q.pop();
+                
+                if(temp == NULL){
+                    if(q.empty()){
+                        break;
+                    }else{
+                        cout << endl;
+                        q.push(NULL);
+                    }
+                }else{
+                    cout << temp->data << " ";
+                    if(temp->left)
+                        q.push(temp->left);
+                    if(temp->right)
+                        q.push(temp->right);
+                }
+            }
+        }
+};
+
+int main()
+{
+    BST b;
+    b.insert(4);
+    b.insert(2);
+    b.insert(3);
+    b.insert(1);
+    b.insert(6);
+    b.insert(5);
+    b.insert(7);
+    b.deleteData(4);
+    b.printLevelWise();
+    //delete b;
+    return 0;
+}
